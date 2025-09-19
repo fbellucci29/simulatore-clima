@@ -1,0 +1,348 @@
+import React, { useState, useEffect } from 'react';
+import { Zap, Thermometer, Cpu, Leaf, Award, TrendingDown } from 'lucide-react';
+
+const DataCenterSimulator = () => {
+  const [efficiency, setEfficiency] = useState(50);
+  const [cooling, setCooling] = useState(50);
+  const [renewable, setRenewable] = useState(30);
+  const [aiOptimization, setAiOptimization] = useState(20);
+  
+  const [stats, setStats] = useState({
+    powerConsumption: 1000,
+    co2Emissions: 500,
+    cost: 50000,
+    pue: 2.0,
+    savings: 0,
+    ecoScore: 0
+  });
+  
+  const [showImpact, setShowImpact] = useState(false);
+  const [achievements, setAchievements] = useState([]);
+
+  useEffect(() => {
+    // Calcoli realistici basati sui parametri
+    const basePower = 1000;
+    const efficiencyFactor = (100 - efficiency) / 100;
+    const coolingFactor = (100 - cooling) / 100;
+    const renewableFactor = renewable / 100;
+    const aiFactor = (100 - aiOptimization) / 100;
+    
+    const totalPower = basePower * efficiencyFactor * coolingFactor * aiFactor;
+    const co2 = totalPower * 0.5 * (1 - renewableFactor);
+    const monthlyCost = totalPower * 0.15 * 24 * 30;
+    const pueValue = 1.2 + (efficiencyFactor * 0.8) + (coolingFactor * 0.6);
+    const ecoScore = Math.round((efficiency + cooling + renewable + aiOptimization) / 4);
+    const savings = Math.max(0, 50000 - monthlyCost);
+    
+    setStats({
+      powerConsumption: Math.round(totalPower),
+      co2Emissions: Math.round(co2),
+      cost: Math.round(monthlyCost),
+      pue: Math.round(pueValue * 10) / 10,
+      savings: Math.round(savings),
+      ecoScore
+    });
+
+    // Achievement system
+    const newAchievements = [];
+    if (ecoScore >= 80) newAchievements.push('🏆 Eco Champion');
+    if (renewable >= 80) newAchievements.push('🌱 Green Energy Master');
+    if (cooling >= 90) newAchievements.push('❄️ Cooling Expert');
+    if (aiOptimization >= 90) newAchievements.push('🤖 AI Optimizer');
+    if (stats.pue <= 1.3) newAchievements.push('⚡ Efficiency Master');
+    
+    setAchievements(newAchievements);
+    
+    if (ecoScore >= 70) setShowImpact(true);
+  }, [efficiency, cooling, renewable, aiOptimization]);
+
+  const getScoreColor = (score) => {
+    if (score >= 80) return 'text-green-600';
+    if (score >= 60) return 'text-yellow-600';
+    return 'text-red-600';
+  };
+
+  const getProgressColor = (value) => {
+    if (value >= 80) return 'bg-green-500';
+    if (value >= 60) return 'bg-yellow-500';
+    return 'bg-red-500';
+  };
+
+  return (
+    <div className="max-w-6xl mx-auto p-6 bg-gradient-to-br from-blue-50 to-green-50 min-h-screen">
+      <div className="text-center mb-8">
+        <h1 className="text-4xl font-bold text-gray-800 mb-2">
+          🏢 Simulatore Data Center Green
+        </h1>
+        <p className="text-lg text-gray-600">
+          Ottimizza il tuo data center e guarda l'impatto in tempo reale!
+        </p>
+      </div>
+
+      <div className="grid lg:grid-cols-2 gap-8">
+        {/* Controls Panel */}
+        <div className="bg-white rounded-xl shadow-lg p-6">
+          <h2 className="text-2xl font-bold mb-6 text-gray-800">
+            🎛️ Pannello di Controllo
+          </h2>
+          
+          {/* Efficiency Slider */}
+          <div className="mb-6">
+            <div className="flex items-center justify-between mb-2">
+              <label className="flex items-center text-sm font-medium text-gray-700">
+                <Cpu className="mr-2 h-4 w-4" />
+                Efficienza Server
+              </label>
+              <span className="text-lg font-bold text-blue-600">{efficiency}%</span>
+            </div>
+            <input
+              type="range"
+              min="20"
+              max="95"
+              value={efficiency}
+              onChange={(e) => setEfficiency(parseInt(e.target.value))}
+              className="w-full h-3 bg-gray-200 rounded-lg appearance-none cursor-pointer slider"
+            />
+            <div className={`w-full bg-gray-200 rounded-full h-2 mt-2`}>
+              <div 
+                className={`h-2 rounded-full transition-all duration-500 ${getProgressColor(efficiency)}`}
+                style={{width: `${efficiency}%`}}
+              ></div>
+            </div>
+          </div>
+
+          {/* Cooling Slider */}
+          <div className="mb-6">
+            <div className="flex items-center justify-between mb-2">
+              <label className="flex items-center text-sm font-medium text-gray-700">
+                <Thermometer className="mr-2 h-4 w-4" />
+                Sistema di Raffreddamento AI
+              </label>
+              <span className="text-lg font-bold text-blue-600">{cooling}%</span>
+            </div>
+            <input
+              type="range"
+              min="20"
+              max="95"
+              value={cooling}
+              onChange={(e) => setCooling(parseInt(e.target.value))}
+              className="w-full h-3 bg-gray-200 rounded-lg appearance-none cursor-pointer"
+            />
+            <div className={`w-full bg-gray-200 rounded-full h-2 mt-2`}>
+              <div 
+                className={`h-2 rounded-full transition-all duration-500 ${getProgressColor(cooling)}`}
+                style={{width: `${cooling}%`}}
+              ></div>
+            </div>
+          </div>
+
+          {/* Renewable Energy */}
+          <div className="mb-6">
+            <div className="flex items-center justify-between mb-2">
+              <label className="flex items-center text-sm font-medium text-gray-700">
+                <Leaf className="mr-2 h-4 w-4" />
+                Energia Rinnovabile
+              </label>
+              <span className="text-lg font-bold text-green-600">{renewable}%</span>
+            </div>
+            <input
+              type="range"
+              min="0"
+              max="100"
+              value={renewable}
+              onChange={(e) => setRenewable(parseInt(e.target.value))}
+              className="w-full h-3 bg-gray-200 rounded-lg appearance-none cursor-pointer"
+            />
+            <div className={`w-full bg-gray-200 rounded-full h-2 mt-2`}>
+              <div 
+                className={`h-2 rounded-full transition-all duration-500 ${getProgressColor(renewable)}`}
+                style={{width: `${renewable}%`}}
+              ></div>
+            </div>
+          </div>
+
+          {/* AI Optimization */}
+          <div className="mb-6">
+            <div className="flex items-center justify-between mb-2">
+              <label className="flex items-center text-sm font-medium text-gray-700">
+                <Zap className="mr-2 h-4 w-4" />
+                Ottimizzazione AI
+              </label>
+              <span className="text-lg font-bold text-purple-600">{aiOptimization}%</span>
+            </div>
+            <input
+              type="range"
+              min="0"
+              max="95"
+              value={aiOptimization}
+              onChange={(e) => setAiOptimization(parseInt(e.target.value))}
+              className="w-full h-3 bg-gray-200 rounded-lg appearance-none cursor-pointer"
+            />
+            <div className={`w-full bg-gray-200 rounded-full h-2 mt-2`}>
+              <div 
+                className={`h-2 rounded-full transition-all duration-500 ${getProgressColor(aiOptimization)}`}
+                style={{width: `${aiOptimization}%`}}
+              ></div>
+            </div>
+          </div>
+        </div>
+
+        {/* Results Panel */}
+        <div className="space-y-6">
+          {/* Eco Score */}
+          <div className="bg-white rounded-xl shadow-lg p-6 text-center">
+            <h3 className="text-xl font-bold mb-4">🌍 Punteggio Sostenibilità</h3>
+            <div className={`text-6xl font-bold mb-2 ${getScoreColor(stats.ecoScore)}`}>
+              {stats.ecoScore}/100
+            </div>
+            <div className={`text-lg font-medium ${getScoreColor(stats.ecoScore)}`}>
+              {stats.ecoScore >= 80 ? 'ECCELLENTE' : 
+               stats.ecoScore >= 60 ? 'BUONO' : 'DA MIGLIORARE'}
+            </div>
+          </div>
+
+          {/* Real-time Stats */}
+          <div className="grid grid-cols-2 gap-4">
+            <div className="bg-white rounded-lg shadow p-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-gray-600">Consumo kW/h</p>
+                  <p className="text-2xl font-bold text-blue-600">
+                    {stats.powerConsumption.toLocaleString()}
+                  </p>
+                </div>
+                <Zap className="h-8 w-8 text-blue-500" />
+              </div>
+            </div>
+
+            <div className="bg-white rounded-lg shadow p-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-gray-600">CO₂ kg/mese</p>
+                  <p className="text-2xl font-bold text-red-600">
+                    {stats.co2Emissions.toLocaleString()}
+                  </p>
+                </div>
+                <TrendingDown className="h-8 w-8 text-red-500" />
+              </div>
+            </div>
+
+            <div className="bg-white rounded-lg shadow p-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-gray-600">Costo €/mese</p>
+                  <p className="text-2xl font-bold text-orange-600">
+                    {stats.cost.toLocaleString()}
+                  </p>
+                </div>
+                <span className="text-2xl">💰</span>
+              </div>
+            </div>
+
+            <div className="bg-white rounded-lg shadow p-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-gray-600">PUE Score</p>
+                  <p className="text-2xl font-bold text-purple-600">
+                    {stats.pue}
+                  </p>
+                </div>
+                <span className="text-2xl">⚡</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Savings Highlight */}
+          {stats.savings > 0 && (
+            <div className="bg-gradient-to-r from-green-500 to-blue-500 text-white rounded-xl p-6 text-center animate-pulse">
+              <h3 className="text-xl font-bold mb-2">💰 Risparmi Annuali</h3>
+              <p className="text-3xl font-bold">
+                €{(stats.savings * 12).toLocaleString()}
+              </p>
+              <p className="text-sm opacity-90">
+                Rispetto a un data center standard non ottimizzato
+              </p>
+            </div>
+          )}
+
+          {/* Achievements */}
+          {achievements.length > 0 && (
+            <div className="bg-white rounded-xl shadow-lg p-6">
+              <h3 className="text-xl font-bold mb-4 flex items-center">
+                <Award className="mr-2" />
+                Achievement Sbloccati
+              </h3>
+              <div className="space-y-2">
+                {achievements.map((achievement, index) => (
+                  <div 
+                    key={index}
+                    className="bg-yellow-100 border border-yellow-300 rounded-lg p-3 text-center font-medium animate-bounce"
+                  >
+                    {achievement}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Environmental Impact */}
+          {showImpact && (
+            <div className="bg-green-50 border border-green-200 rounded-xl p-6">
+              <h3 className="text-lg font-bold text-green-800 mb-3">
+                🌱 Impatto Ambientale Positivo
+              </h3>
+              <div className="space-y-2 text-sm text-green-700">
+                <p>• Riduci l'equivalente di <strong>{Math.round(stats.co2Emissions/1000 * 2.5)} alberi</strong> piantati</p>
+                <p>• Risparmio energetico di <strong>{Math.round((1000 - stats.powerConsumption)/10)} case</strong> per un anno</p>
+                <p>• Contribuisci agli obiettivi <strong>SDG 7, 13 e 15</strong></p>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Impact Certificate */}
+      <div className="mt-8 text-center">
+        <div className="bg-gradient-to-br from-green-50 to-blue-50 border-2 border-green-200 rounded-xl shadow-lg p-8">
+          <h3 className="text-2xl font-bold mb-6 text-green-800">🏆 Il Tuo Certificato di Impatto</h3>
+          
+          <div className="bg-white rounded-lg p-6 mb-6 border border-green-300">
+            <h4 className="text-lg font-bold text-green-800 mb-4">🌱 Impatto Ambientale Raggiunto</h4>
+            <div className="space-y-3 text-left">
+              <p className="flex items-center justify-between">
+                <span>• Riduci l'equivalente di</span>
+                <strong className="text-green-600">{Math.round(stats.co2Emissions/1000 * 2.5)} alberi piantati</strong>
+              </p>
+              <p className="flex items-center justify-between">
+                <span>• Risparmio energetico di</span>
+                <strong className="text-blue-600">{Math.round((1000 - stats.powerConsumption)/10)} case per un anno</strong>
+              </p>
+              <p className="flex items-center justify-between">
+                <span>• Contribuisci agli obiettivi</span>
+                <strong className="text-purple-600">SDG 7, 13 e 15</strong>
+              </p>
+            </div>
+            
+            <div className="mt-4 pt-4 border-t border-gray-200">
+              <p className="text-sm text-gray-600">
+                <strong>Configurazione ottimale:</strong> Efficienza {efficiency}% • Cooling {cooling}% • Rinnovabili {renewable}% • AI {aiOptimization}%
+              </p>
+              <p className="text-sm text-gray-500 mt-2">
+                Punteggio Sostenibilità: <span className={`font-bold ${getScoreColor(stats.ecoScore)}`}>{stats.ecoScore}/100</span>
+              </p>
+            </div>
+          </div>
+          
+          <button 
+            onClick={() => window.print()}
+            className="bg-gradient-to-r from-green-500 to-blue-500 text-white px-8 py-3 rounded-lg font-bold hover:from-green-600 hover:to-blue-600 transition-all duration-300 transform hover:scale-105 shadow-lg"
+          >
+            📄 Stampa/Salva Certificato
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default DataCenterSimulator;
