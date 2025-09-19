@@ -66,13 +66,13 @@
 
         .controls-grid {
             display: grid;
-            grid-template-columns: 1fr;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
             gap: 30px;
         }
 
         .results-section {
             display: grid;
-            grid-template-columns: 1fr;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
             gap: 30px;
         }
 
@@ -304,6 +304,114 @@
             box-shadow: 0 5px 15px rgba(16, 185, 129, 0.4);
         }
 
+        /* Print Styles */
+        @media print {
+            * {
+                -webkit-print-color-adjust: exact !important;
+                color-adjust: exact !important;
+            }
+            
+            body {
+                background: white !important;
+                margin: 0;
+                padding: 0;
+            }
+            
+            .container {
+                box-shadow: none !important;
+                border-radius: 0 !important;
+                background: white !important;
+            }
+            
+            .header, .main-content, .print-btn {
+                display: none !important;
+            }
+            
+            .certificate {
+                display: block !important;
+                background: white !important;
+                border: none !important;
+                border-radius: 0 !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                height: 100vh;
+                page-break-after: always;
+            }
+            
+            .print-page-1 {
+                display: flex !important;
+                flex-direction: column;
+                justify-content: center;
+                align-items: center;
+                height: 100vh;
+                text-align: center;
+                font-family: 'Segoe UI', sans-serif;
+            }
+            
+            .print-page-2 {
+                display: flex !important;
+                flex-direction: column;
+                justify-content: center;
+                align-items: flex-start;
+                height: 100vh;
+                padding: 60px;
+                font-family: 'Segoe UI', sans-serif;
+            }
+            
+            .print-title {
+                font-size: 3rem !important;
+                font-weight: bold;
+                color: #065f46 !important;
+                margin-bottom: 30px !important;
+            }
+            
+            .print-emoji {
+                font-size: 8rem !important;
+                margin: 30px 0 !important;
+            }
+            
+            .print-level {
+                font-size: 2.5rem !important;
+                font-weight: bold;
+                color: #059669 !important;
+                margin-bottom: 50px !important;
+            }
+            
+            .print-impact {
+                font-size: 1.8rem !important;
+                color: #065f46 !important;
+                margin-bottom: 30px !important;
+                font-weight: bold;
+            }
+            
+            .print-impact-list {
+                font-size: 1.4rem !important;
+                color: #374151 !important;
+                line-height: 2;
+                text-align: center;
+            }
+            
+            .print-stats {
+                font-size: 1.6rem !important;
+                color: #374151 !important;
+                line-height: 2.5;
+            }
+            
+            .print-stats-title {
+                font-size: 2rem !important;
+                color: #065f46 !important;
+                font-weight: bold;
+                margin-bottom: 30px !important;
+            }
+            
+            .print-achievement {
+                font-size: 1.4rem !important;
+                color: #065f46 !important;
+                font-weight: bold;
+                margin-top: 30px !important;
+            }
+        }
+
         .achievements {
             background: white;
             padding: 25px;
@@ -466,7 +574,32 @@
                     Punteggio Sostenibilità: <span id="cert-score" style="color: #ef4444; font-weight: 700;">37/100</span>
                 </div>
             </div>
-            <button class="print-btn" onclick="window.print()">📄 Stampa/Salva Certificato</button>
+            <button class="print-btn" onclick="printCertificate()">📄 Stampa/Salva Certificato</button>
+            
+            <!-- Hidden Print Pages -->
+            <div class="print-page-1" style="display: none;">
+                <div class="print-title">🏆 Il Tuo Certificato di Impatto</div>
+                <div class="print-emoji" id="print-emoji">😤</div>
+                <div class="print-level" id="print-level">Green Rookie</div>
+                <div class="print-impact">🌱 Impatto Ambientale:</div>
+                <div class="print-impact-list">
+                    <div id="print-trees">• 1 alberi piantati</div>
+                    <div id="print-houses">• 91 case alimentate</div>
+                    <div>• SDG 7, 13, 15</div>
+                </div>
+            </div>
+            
+            <div class="print-page-2" style="display: none;">
+                <div class="print-stats-title">Risultati Raggiunti</div>
+                <div class="print-stats">
+                    <div id="print-score">🌍 Punteggio: 37/100 DA MIGLIORARE</div>
+                    <div id="print-power">⚡ Consumo: 1,000 kW/h</div>
+                    <div id="print-co2">📉 CO₂: 500 kg/mese</div>
+                    <div id="print-cost">💰 Costo: €50,000/mese</div>
+                    <div id="print-pue">⚡ PUE: 2.0</div>
+                    <div class="print-achievement" id="print-achievements">🏆 Achievement: Nessuno</div>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -490,6 +623,57 @@
 
         function formatNumber(num) {
             return new Intl.NumberFormat('it-IT').format(num);
+        }
+
+        function getLevelInfo(score) {
+            if (score >= 90) return { emoji: '🤩', level: 'Green Master', label: 'ECCELLENTE' };
+            if (score >= 75) return { emoji: '😎', level: 'Green Expert', label: 'ECCELLENTE' };
+            if (score >= 60) return { emoji: '😊', level: 'Green Practitioner', label: 'BUONO' };
+            if (score >= 40) return { emoji: '😅', level: 'Green Learner', label: 'BUONO' };
+            return { emoji: '😤', level: 'Green Rookie', label: 'DA MIGLIORARE' };
+        }
+
+        function printCertificate() {
+            // Update print pages with current data
+            const ecoScore = Math.round((efficiency + cooling + renewable + aiOptimization) / 4);
+            const levelInfo = getLevelInfo(ecoScore);
+            
+            // Page 1 updates
+            document.getElementById('print-emoji').textContent = levelInfo.emoji;
+            document.getElementById('print-level').textContent = levelInfo.level;
+            
+            const treesSaved = Math.round(Math.round(1000 * (100 - efficiency) / 100 * (100 - cooling) / 100 * (100 - aiOptimization) / 100 * 0.5 * (1 - renewable / 100))/1000 * 2.5);
+            const housesPowered = Math.round((1000 - Math.round(1000 * (100 - efficiency) / 100 * (100 - cooling) / 100 * (100 - aiOptimization) / 100))/10);
+            
+            document.getElementById('print-trees').textContent = `• ${treesSaved} alberi piantati`;
+            document.getElementById('print-houses').textContent = `• ${housesPowered} case alimentate`;
+            
+            // Page 2 updates
+            document.getElementById('print-score').textContent = `🌍 Punteggio: ${ecoScore}/100 ${levelInfo.label}`;
+            
+            const totalPower = Math.round(1000 * (100 - efficiency) / 100 * (100 - cooling) / 100 * (100 - aiOptimization) / 100);
+            const co2 = Math.round(totalPower * 0.5 * (1 - renewable / 100));
+            const monthlyCost = Math.round(totalPower * 0.15 * 24 * 30);
+            const pueValue = Math.round((1.2 + ((100 - efficiency) / 100 * 0.8) + ((100 - cooling) / 100 * 0.6)) * 10) / 10;
+            
+            document.getElementById('print-power').textContent = `⚡ Consumo: ${formatNumber(totalPower)} kW/h`;
+            document.getElementById('print-co2').textContent = `📉 CO₂: ${formatNumber(co2)} kg/mese`;
+            document.getElementById('print-cost').textContent = `💰 Costo: €${formatNumber(monthlyCost)}/mese`;
+            document.getElementById('print-pue').textContent = `⚡ PUE: ${pueValue}`;
+            
+            // Achievements
+            const achievements = [];
+            if (ecoScore >= 80) achievements.push('Eco Champion');
+            if (renewable >= 80) achievements.push('Green Energy Master');
+            if (cooling >= 90) achievements.push('Cooling Expert');
+            if (aiOptimization >= 90) achievements.push('AI Optimizer');
+            if (pueValue <= 1.3) achievements.push('Efficiency Master');
+            
+            const achievementText = achievements.length > 0 ? achievements.join(', ') : 'Nessuno';
+            document.getElementById('print-achievements').textContent = `🏆 Achievement: ${achievementText}`;
+            
+            // Print
+            window.print();
         }
 
         function updateDisplay() {
@@ -532,13 +716,12 @@
             document.getElementById('monthly-cost').textContent = formatNumber(monthlyCost);
             document.getElementById('pue-score').textContent = pueValue;
             
-            // Update eco score
+            // Update eco score with level info
+            const levelInfo = getLevelInfo(ecoScore);
             const scoreColor = getScoreColor(ecoScore);
             document.getElementById('eco-score').textContent = ecoScore + '/100';
             document.getElementById('eco-score').style.color = scoreColor;
-            
-            const scoreLabel = ecoScore >= 80 ? 'ECCELLENTE' : ecoScore >= 60 ? 'BUONO' : 'DA MIGLIORARE';
-            document.getElementById('eco-label').textContent = scoreLabel;
+            document.getElementById('eco-label').textContent = levelInfo.label;
             document.getElementById('eco-label').style.color = scoreColor;
 
             // Show/hide savings panel
@@ -580,30 +763,6 @@
             document.getElementById('cert-score').textContent = ecoScore + '/100';
             document.getElementById('cert-score').style.color = scoreColor;
         }
-
-        // Event listeners
-        document.getElementById('efficiency-slider').addEventListener('input', function(e) {
-            efficiency = parseInt(e.target.value);
-            updateDisplay();
-        });
-
-        document.getElementById('cooling-slider').addEventListener('input', function(e) {
-            cooling = parseInt(e.target.value);
-            updateDisplay();
-        });
-
-        document.getElementById('renewable-slider').addEventListener('input', function(e) {
-            renewable = parseInt(e.target.value);
-            updateDisplay();
-        });
-
-        document.getElementById('ai-slider').addEventListener('input', function(e) {
-            aiOptimization = parseInt(e.target.value);
-            updateDisplay();
-        });
-
-        // Initialize
-        updateDisplay();
     </script>
 </body>
 </html>
