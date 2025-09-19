@@ -70,9 +70,85 @@
             gap: 30px;
         }
 
+        .control-group {
+            margin-bottom: 25px;
+        }
+
+        .control-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #374151;
+            font-weight: 500;
+            font-size: 1rem;
+        }
+
+        .slider-container {
+            position: relative;
+            margin-bottom: 15px;
+        }
+
+        .slider {
+            width: 100%;
+            height: 8px;
+            border-radius: 5px;
+            background: #e5e7eb;
+            outline: none;
+            -webkit-appearance: none;
+            appearance: none;
+            cursor: pointer;
+        }
+
+        .slider::-webkit-slider-thumb {
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #3b82f6;
+            cursor: pointer;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            transition: all 0.2s ease;
+        }
+
+        .slider::-webkit-slider-thumb:hover {
+            transform: scale(1.1);
+            background: #2563eb;
+        }
+
+        .slider::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #3b82f6;
+            cursor: pointer;
+            border: none;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .value-display {
+            text-align: right;
+            font-weight: 700;
+            font-size: 1.1rem;
+            color: #3b82f6;
+            margin-bottom: 10px;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 6px;
+            background: #e5e7eb;
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            border-radius: 3px;
+            transition: all 0.3s ease;
+        }
+
         .results-section {
             display: grid;
-            grid-template-columns: 1fr;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
             gap: 30px;
         }
 
@@ -156,80 +232,12 @@
             margin-bottom: 5px;
         }
 
-        .control-group {
-            margin-bottom: 25px;
-        }
-
-        .control-group label {
-            display: block;
-            margin-bottom: 8px;
-            color: #374151;
-            font-weight: 500;
-            font-size: 1rem;
-        }
-
-        .slider-container {
-            position: relative;
-            margin-bottom: 15px;
-        }
-
-        .slider {
-            width: 100%;
-            height: 8px;
-            border-radius: 5px;
-            background: #e5e7eb;
-            outline: none;
-            -webkit-appearance: none;
-            appearance: none;
-            cursor: pointer;
-        }
-
-        .slider::-webkit-slider-thumb {
-            appearance: none;
-            width: 20px;
-            height: 20px;
-            border-radius: 50%;
-            background: #3b82f6;
-            cursor: pointer;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-            transition: all 0.2s ease;
-        }
-
-        .slider::-webkit-slider-thumb:hover {
-            transform: scale(1.1);
-            background: #2563eb;
-        }
-
-        .slider::-moz-range-thumb {
-            width: 20px;
-            height: 20px;
-            border-radius: 50%;
-            background: #3b82f6;
-            cursor: pointer;
-            border: none;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-        }
-
-        .value-display {
-            text-align: right;
-            font-weight: 700;
-            font-size: 1.1rem;
-            color: #3b82f6;
-            margin-bottom: 10px;
-        }
-
-        .progress-bar {
-            width: 100%;
-            height: 6px;
-            background: #e5e7eb;
-            border-radius: 3px;
-            overflow: hidden;
-        }
-
-        .progress-fill {
-            height: 100%;
-            border-radius: 3px;
-            transition: all 0.3s ease;
+        .achievements {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            display: none;
         }
 
         .achievements h3 {
@@ -410,14 +418,6 @@
                 font-weight: bold;
                 margin-top: 30px !important;
             }
-        }
-
-        .achievements {
-            background: white;
-            padding: 25px;
-            border-radius: 15px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-            display: none;
         }
 
         @keyframes pulse {
@@ -763,6 +763,30 @@
             document.getElementById('cert-score').textContent = ecoScore + '/100';
             document.getElementById('cert-score').style.color = scoreColor;
         }
+
+        // Event listeners
+        document.getElementById('efficiency-slider').addEventListener('input', function(e) {
+            efficiency = parseInt(e.target.value);
+            updateDisplay();
+        });
+
+        document.getElementById('cooling-slider').addEventListener('input', function(e) {
+            cooling = parseInt(e.target.value);
+            updateDisplay();
+        });
+
+        document.getElementById('renewable-slider').addEventListener('input', function(e) {
+            renewable = parseInt(e.target.value);
+            updateDisplay();
+        });
+
+        document.getElementById('ai-slider').addEventListener('input', function(e) {
+            aiOptimization = parseInt(e.target.value);
+            updateDisplay();
+        });
+
+        // Initialize
+        updateDisplay();
     </script>
 </body>
 </html>
